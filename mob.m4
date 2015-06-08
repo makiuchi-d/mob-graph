@@ -25,19 +25,29 @@ define(`_stack_reverse',
 dnl
 dnl
 define(`CLUSTER_ADD',`dnl
-  ifdef(`_CLUSTER_FLAG[$2]',,`define(`_CLUSTER_FLAG[$2]')pushdef(`_CLUSTER_LIST', `$2')')dnl
-  pushdef(`_CLUSTER_MEMBER[$2]', $1)dnl
-  ')dnl
+ifdef(`_CLUSTER_FLAG[$2]',,
+	`define(`_CLUSTER_FLAG[$2]')pushdef(`_CLUSTER_LIST', `$2')')dnl
+pushdef(`_CLUSTER_MEMBER[$2]', $1)dnl
+')dnl
+dnl
+dnl
+define(`SCHOOL_ADD',`dnl
+ifdef(`_SCHOOL_FLAG[$2]',,
+	`define(`_SCHOOL_FLAG[$2]')pushdef(`_SCHOOL_LIST', `$2')')dnl
+pushdef(`_SCHOOL_MEMBER[$2]', $1)dnl
+')dnl
 dnl
 dnl
 dnl MOB(name, grade, `id1,...', cluster)
 dnl
-define(`MOB', `ifelse($4, , , `CLUSTER_ADD($1,$4)')dnl
+define(`MOB',
+`ifelse($5, , , `CLUSTER_ADD($1,$5)')dnl
+SCHOOL_ADD($1,$3)dnl
 	"$1" [
 		color = GRADE_COLOR($2),
 		label=<<table border="0">
-			<tr><td colspan="COUNT($3)"><b>$1</b></td></tr>
-			ifelse(`$3',,,`<tr>TD_ICON($3)
+			<tr><td colspan="COUNT($4)"><b>$1</b></td></tr>
+			ifelse(`$4',,,`<tr>TD_ICON($4)
 			</tr>')</table>>,
 	]')dnl
 dnl
@@ -53,6 +63,24 @@ define(`_CLUSTER_OUTPUT_SUBGRAPH', `
 stack_foreach(`_CLUSTER_MEMBER[$1]', `_CLUSTER_OUTPUT_MEMBER')
 	}')dnl
 dnl
+dnl
+define(`OUTPUT_SCHOOLS', `stack_foreach(`_SCHOOL_LIST', `_SCHOOL_OUTPUT_SUBGRAPH')')dnl
+define(`_SCHOOL_OUTPUT_MEMBER', `
+		"$1"')dnl
+define(`_SCHOOL_OUTPUT_SUBGRAPH', `
+	subgraph cluster_$1 {
+		label = "_SCHOOL_NAME($1)"
+		style = rounded dnl
+stack_foreach(`_SCHOOL_MEMBER[$1]', `_SCHOOL_OUTPUT_MEMBER')
+	}')dnl
+dnl
+define(`_SCHOOL_NAME', `ifelse(
+	$1, 青, 青藍高校,
+	$1, 東, 東雲学院,
+	$1, 千, 千歳橋高校,
+	$1, 藤, 藤黄学園,
+	$1, 紫, 紫苑女学院,
+	$1, YG, Y.G. 国際学園)')dnl
 dnl
 dnl
 define(`SS',
